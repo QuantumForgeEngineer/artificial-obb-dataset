@@ -1,12 +1,14 @@
 # Artifical Oriented Bounding Box (OBB) dataset
 
 Script that creates an artificial dataset of images and coordinates of OBB compatible with YOLOv8 implementation of Ultralytics.
+![image](https://github.com/QuantumForgeEngineer/artificial-obb-dataset/assets/166127086/c1272a6f-ab71-40e9-9b0d-015c2f39efdc)
 
 ## Table of Contents
 
 - [Description](#description)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Examples](#examples)
 
 ## Description
 
@@ -28,4 +30,13 @@ python main.py
 ## Usage
 
 You can run the main.py after editing the *writing_path* and *num_images* variables.
+
+## Examples
+Below examples of images generated
+
+- ![image](https://github.com/QuantumForgeEngineer/artificial-obb-dataset/assets/166127086/52caa3b5-9bce-49da-8559-80721a2800d6)
+- ![image](https://github.com/QuantumForgeEngineer/artificial-obb-dataset/assets/166127086/f7b52eca-b0ad-4e4d-949b-b715d480b39e)
+
+
+
 
