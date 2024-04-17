@@ -1,8 +1,9 @@
-from utils import remove_all_files
-from utils import generate_images
+import os
+
+from utils import remove_all_files, generate_images
 
 # Parameters
-num_images = 50000  # Total number of images to generate
+num_images = 100  # Total number of images to generate
 image_size = 512  # Size of each image
 
 writing_path = "/path/where/to/write/data"
@@ -20,4 +21,4 @@ else:
           os.makedirs(os.path.join(fol, ds))
         
 # Generate images and labels
-generate_images(num_images, image_size)
+generate_images(writing_path, num_images, image_size)

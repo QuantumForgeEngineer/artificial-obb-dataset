@@ -1,3 +1,11 @@
+import os
+
+import pandas as pd
+from tqdm import tqdm
+import numpy as np
+import cv2
+
+
 def __xywhr2xyxyxyxy(rboxes, width, height):
     """
     Convert batched Oriented Bounding Boxes (OBB) from [xywh, rotation] to [xy1, xy2, xy3, xy4]. Rotation values should
@@ -56,9 +64,9 @@ def draw_random_shape(image):
         xyxyxyxy = _draw_circle(image)
     else:
         cls_ = 1 # Rect label
-        randint = random.choice(range(10))
+        randint = np.random.choice(range(10))
         if randint == 0: # Generate regular rect (1 time out of 10)
-            xyxyxyxy = draw_rectangle(image)           
+            xyxyxyxy = _draw_rectangle(image)           
         else:  # Generate thin and long object (9 times out of 10)
             if np.random.choice([0, 1]):
                 xyxyxyxy = _draw_horizontal_thin_and_long_rect(image)
@@ -89,8 +97,8 @@ def _draw_circle(image):
         min_radius = min(height, width) // 3
         max_radius = min(height, width) // 2
     
-    center = (random.randint(max_radius//2, width-max_radius//2), random.randint(max_radius//2, height-max_radius//2))
-    radius = random.randint(min_radius, max_radius) 
+    center = (np.random.randint(max_radius//2, width-max_radius//2), np.random.randint(max_radius//2, height-max_radius//2))
+    radius = np.random.randint(min_radius, max_radius) 
 
     color = np.random.randint(MIN_COLOR, MAX_COLOR)
     cv2.circle(image, center, radius, (color), thickness=-1)
@@ -133,9 +141,9 @@ def _draw_rectangle(image):
         min_wh = min(height, width) // 3
         max_wh = min(height, width) // 2
     
-    x_cent, y_cent = random.randint(max_wh//2, width-max_wh//2), random.randint(max_wh//2, height-max_wh//2) 
-    w = random.randint(min_wh, max_wh) 
-    h = random.randint(min_wh, max_wh)  
+    x_cent, y_cent = np.random.randint(max_wh//2, width-max_wh//2), np.random.randint(max_wh//2, height-max_wh//2) 
+    w = np.random.randint(min_wh, max_wh) 
+    h = np.random.randint(min_wh, max_wh)  
 
     angle = np.random.uniform(0, 90)
 
@@ -164,9 +172,9 @@ def _draw_horizontal_thin_and_long_rect(image):
     eps = 10  # enlarge bbox height --> this allow to have larger box because it seems that thinner box trigs non detection on yolov8-obb
     # Choose TopLeft
     x1 = 0
-    y1 = random.randint(eps/2, height-max_h-eps/2) # Choose TopLeft
+    y1 = np.random.randint(eps/2, height-max_h-eps/2) # Choose TopLeft
     w = width # prend toute la largeur de l image
-    h = random.randint(1, max_h+1)  
+    h = np.random.randint(1, max_h+1)  
 
     color = np.random.randint(MIN_COLOR, MAX_COLOR)
     cv2.rectangle(image, (x1, y1), (x1+w, y1+h), (color), thickness=-1)
@@ -215,19 +223,19 @@ def _draw_tilted_thin_and_long_rect(image):
     # Generate shape
     # Choose center of rectangle in a square of eps pixels in the image's center
     eps_cent = 200
-    eps_x_cent = random.randint(-eps_cent, eps_cent)
-    eps_y_cent = random.randint(-eps_cent, eps_cent)
+    eps_x_cent = np.random.randint(-eps_cent, eps_cent)
+    eps_y_cent = np.random.randint(-eps_cent, eps_cent)
 
     x_cent = width /2 + eps_x_cent
     y_cent = height/2 + eps_y_cent
 
     # Length between 100 to 130 % of max length --> See if manage negative coordinates     
     max_length = np.sqrt( (width-eps_x_cent)**2 + (height-eps_y_cent)**2 )
-    w = int(random.uniform(max_length, max_length * 1.3))
+    w = int(np.random.uniform(max_length, max_length * 1.3))
 
     # Thin height
     max_h = 5
-    h = random.randint(1, max_h+1)
+    h = np.random.randint(1, max_h+1)
 
     # Negative & positive orientation
     if np.random.choice([0, 1]):
@@ -267,7 +275,8 @@ def remove_all_files(folder_path):
     except Exception as e:
         print(f"Error removing files: {e}")
 
-def generate_images(num_images, size):
+
+def generate_images(writing_path, num_images, size):
     for i in tqdm(range(num_images)):
         dataset = np.random.choice(['train', 'val', 'test'], p=[0.8, 0.1, 0.1])
         image = np.zeros((size, size), dtype=np.uint8)  # Create black image
@@ -278,9 +287,9 @@ def generate_images(num_images, size):
         labels = pd.DataFrame(labels, columns=['cls'] + [coord + str(ind) for ind in range(1, 5) for coord in ['x', 'y']])
         
         # Write csv
-        labels.to_csv(f'../labels/{dataset}/image_{i}.txt', sep=' ', header=False, index=False)
+        labels.to_csv(f'{writing_path}/labels/{dataset}/image_{i}.txt', sep=' ', header=False, index=False)
 
         # Add noise
         std_ = 60
         image += np.abs(np.random.randn(size, size) * std_).astype(np.uint8)
-        cv2.imwrite(f'../images/{dataset}/image_{i}.png', image)
+        cv2.imwrite(f'{writing_path}/images/{dataset}/image_{i}.png', image)
